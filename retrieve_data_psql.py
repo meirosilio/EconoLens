@@ -1,16 +1,11 @@
 import psycopg2
 import pandas as pd
+from connection_manager import get_db_config
 
 def retrieve_monthly_data(symbol, columns):
     try:
         # Define database parameters
-        db_params = {
-            "database": "econo_lens_db",
-            "user": "postgres",
-            "password": "5343153",
-            "host": "localhost",
-            "port": "5432"
-        }
+        db_params = get_db_config()
 
         # Establish a connection to the database
         conn = psycopg2.connect(**db_params)

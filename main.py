@@ -20,7 +20,7 @@ def process_symbol_data(symbol, columns_to_retrieve):
         df_symbol = market_data_by_symbol.fetch_monthly_adjusted(symbol)
 
         # Insert data into the database
-        data_insertion_psql.insert_market_data(symbol, df_symbol, "postgresql://postgres:5343153@localhost/econo_lens_db")
+        data_insertion_psql.insert_market_data(symbol, df_symbol)
 
         # Retrieve the data from the database again
         df = retrieve_data_psql.retrieve_monthly_data(symbol, columns_to_retrieve)
@@ -28,6 +28,6 @@ def process_symbol_data(symbol, columns_to_retrieve):
 
 
 # calling to the function:
-symbol = 'VTWG'
+symbol = 'IBM'
 columns_to_retrieve = ['open', 'close', 'change']
 process_symbol_data(symbol, columns_to_retrieve)

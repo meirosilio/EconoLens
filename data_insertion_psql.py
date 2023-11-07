@@ -1,8 +1,13 @@
 from sqlalchemy import create_engine
+from connection_manager import get_db_config
 
-def insert_market_data(symbol, df, connection_string):
+def insert_market_data(symbol, df):
     try:
+        # Get database connection parameters from config
+        db_params = get_db_config()
+
         # Create a database connection
+        connection_string = f"postgresql://{db_params['user']}:{db_params['password']}@{db_params['host']}:{db_params['port']}/{db_params['database']}"
         engine = create_engine(connection_string)
         conn = engine.raw_connection()
         cursor = conn.cursor()
