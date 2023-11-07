@@ -1,53 +1,44 @@
-import requests
 import pandas as pd
+from api_manager import APIManager
+from connection_manager import get_api_key
+
+# Create an instance of APIManager for the Alphavantage API
+alphavantage_api = APIManager(base_url="https://www.alphavantage.co/query", api_key=get_api_key())
 
 
 def fetch_monthly_adjusted(symbol):
-    # Define the API endpoint and parameters
-    url = "https://www.alphavantage.co/query"
-    params = {
-        "function": "TIME_SERIES_MONTHLY_ADJUSTED",
-        "symbol": symbol,
-        "apikey": "USAYSNCYKM7VRBXG"
-    }
+    try:
+        # Make the API call using the APIManager instance
+        data = alphavantage_api.fetch_data(function="TIME_SERIES_MONTHLY_ADJUSTED", symbol=symbol)
 
-    # Make the API request
-    response = requests.get(url, params=params)
+        if data:
+            # Parse the data and create a DataFrame
+            monthly_data = data.get('Monthly Adjusted Time Series', {})
+            df = pd.DataFrame.from_dict(monthly_data, orient='index')
 
-    # Check for a valid response
-    if response.status_code == 200:
+            # Convert the index to datetime for better handling
+            df.index = pd.to_datetime(df.index)
+            print(df.dtypes)
+            print(df.info())
 
-        # Parse the JSON response
-        data = response.json()
+            # Column names for better description
+            df.columns = ['Open', 'High', 'Low', 'Close', 'Adjusted Close', 'Volume', 'Dividend Amount']
 
-        # 'data's' type equals to dictionary containing the API response
-        monthly_data = data['Monthly Adjusted Time Series']
+            # Convert attribute types to numeric values
+            df['Open'] = pd.to_numeric(df['Open'])
+            df['High'] = pd.to_numeric(df['High'])
+            df['Low'] = pd.to_numeric(df['Low'])
+            df['Close'] = pd.to_numeric(df['Close'])
+            df['Adjusted Close'] = pd.to_numeric(df['Adjusted Close'])
+            df['Volume'] = pd.to_numeric(df['Volume'])
+            df['Dividend Amount'] = pd.to_numeric(df['Dividend Amount'])
+            df['change'] = ((df['Close'] - df['Open']) / df['Close']) * 100.0
+            print(df.dtypes)
 
-        # Convert the dictionary to a DataFrame
-        df = pd.DataFrame.from_dict(monthly_data, orient='index')
-
-        # Convert the index to datetime for better handling
-        df.index = pd.to_datetime(df.index)
-        print(df.dtypes)
-        print(df.info())
-
-        # column names to be more descriptive
-        df.columns = ['Open', 'High', 'Low', 'Close', 'Adjusted Close', 'Volume', 'Dividend Amount']
-
-        # Convert the attributes' types to numeric values
-        df['Open'] = pd.to_numeric(df['Open'])
-        df['High'] = pd.to_numeric(df['High'])
-        df['Low'] = pd.to_numeric(df['Low'])
-        df['Close'] = pd.to_numeric(df['Close'])
-        df['Adjusted Close'] = pd.to_numeric(df['Adjusted Close'])
-        df['Volume'] = pd.to_numeric(df['Volume'])
-        df['Dividend Amount'] = pd.to_numeric(df['Dividend Amount'])
-        df['change'] = ((df['Close'] - df['Open'])/df['Close'])*100.0
-        print(df.dtypes)
-
-        return df
-
-    else:
-        print(f"Failed to retrieve data: {response.status_code}")
+            return df
+        else:
+            print("Failed to retrieve data.")
+            return None
+    except Exception as e:
+        print(f"Error: {e}")
         return None
-

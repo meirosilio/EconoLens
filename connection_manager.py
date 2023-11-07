@@ -13,3 +13,8 @@ def get_db_config():
     }
 
     return db_params
+
+def get_api_key():
+    config = configparser.ConfigParser()
+    config.read('config.ini')  # Adjust the path if needed
+    return config['api']['alphavantage_api_key']

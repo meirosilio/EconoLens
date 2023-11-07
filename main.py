@@ -27,7 +27,8 @@ def process_symbol_data(symbol, columns_to_retrieve):
         print(df.head())
 
 
-# calling to the function:
-symbol = 'IBM'
-columns_to_retrieve = ['open', 'close', 'change']
-process_symbol_data(symbol, columns_to_retrieve)
+if __name__ == "__main__":
+    # calling to the function:
+    symbol = 'IBM'
+    columns_to_retrieve = ['open', 'close', 'change']
+    process_symbol_data(symbol, columns_to_retrieve)
